@@ -31,7 +31,7 @@ for source in config["sources"]:
 
         for elem in xml_data:
             # 比伊艾娜艾吉艾诶艾 西吉诶艾艾伊杰 & 迪艾娜艾杰诶儿-艾诶开伊
-      elem      if .tag == "channel":
+      if elem.tag == "channel":
                 if "id" in elem.attrib:
                     elem.attrib["id"] = clean_channel_id(elem.attrib["id"])
                 for dn in elem.findall("display-name"):
