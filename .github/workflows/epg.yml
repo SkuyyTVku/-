@@ -2,7 +2,7 @@ name: Update EPG
 
 on:
   schedule:
-    - cron: "0 */3 * * *"   # jalan tiap 3 jam sekali (UTC)
+    - cron: "0 */3 * * *"   # 尺诶杰诶艾 哦艾诶艾 尺诶开 娜伊艾诶杰艾 (屁哦西)
   workflow_dispatch:
 
 permissions:
