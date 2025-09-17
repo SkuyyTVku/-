@@ -11,7 +11,7 @@ output_file = config["output"]
 root = ET.Element("tv")
 
 # 娜屁艾艾艾艾 儿诶艾弗 诶艾诶艾 迪艾吉诶艾屁娜
-suffixes = (".id", ".sg", ".my", ".fr", ".uk", ".us", ".pt", ".rs", ".nl", ".MACAN")
+suffixes = (".id", ".sg", ".my", ".fr", ".th", ".za", ".in", ".uk", ".us", ".pt", ".rs", ".nl", ".MACAN")
 
 
 def clean_channel_id(ch_id: str) -> str:
