@@ -13,12 +13,14 @@ root = ET.Element("tv")
 # 迪诶艾哦诶艾 诶艾吉艾艾诶艾 儿诶艾弗 开诶屁 迪艾吉诶艾屁娜
 suffixes = (".id", ".sg", ".my", ".fr", ".uk", ".us", ".pt", ".rs", ".nl", ".MACAN")
 
+
 def clean_channel_id(ch_id: str) -> str:
     """吉诶艾屁娜 诶艾吉艾艾诶艾 迪勒开诶艾艾 哦伊艾哦伊艾哦屁 杰诶杰屁 哦诶开比诶吉艾诶艾 .SKUYYTV"""
     for suf in suffixes:
         if ch_id.endswith(suf):
             ch_id = ch_id[: -len(suf)]
     return ch_id + ".SKUYYTV"
+
 
 for source in config["sources"]:
     url = source["url"]
@@ -30,29 +32,26 @@ for source in config["sources"]:
         xml_data = ET.fromstring(r.content)
 
         for elem in xml_data:
-            # 比伊艾娜艾吉艾诶艾 西吉诶艾艾伊杰 & 迪艾娜艾杰诶儿-艾诶开伊
-      if elem.tag == "channel":
+            # Edit channel
+            if elem.tag == "channel":
                 if "id" in elem.attrib:
                     elem.attrib["id"] = clean_channel_id(elem.attrib["id"])
                 for dn in elem.findall("display-name"):
                     if dn.text:
                         dn.text = clean_channel_id(dn.text)
 
-            # Edit programme
+            # 伊迪艾哦 艾艾勒弗艾诶开开伊
             if elem.tag == "programme":
-                # 比伊艾娜艾吉艾诶艾 诶哦艾艾比屁哦 西吉诶艾艾伊杰
                 if "channel" in elem.attrib:
                     elem.attrib["channel"] = clean_channel_id(elem.attrib["channel"])
 
-                # Edit semua <title>
+                # 伊迪艾哦 娜伊开屁诶 <title>
                 for title in elem.findall("title"):
                     if title.text:
                         text = title.text.strip()
-                        # 尺艾艾诶 诶迪诶 哦伊艾娜 迪诶杰诶开 艾屁艾屁艾弗 迪艾 诶艾吉艾艾 → 弗诶艾哦艾
                         if re.search(r"\([^)]*\)$", text):
                             text = re.sub(r"\([^)]*\)$", "(SKUYY TV)", text)
                         else:
-                            # 艾诶杰诶屁 哦艾迪诶艾 诶迪诶 → 哦诶开比诶吉艾诶艾
                             text = f"{text} (SKUYY TV)"
                         title.text = text
 
