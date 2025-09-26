@@ -10,27 +10,35 @@ with open("config.json") as f:
 output_file = config["output"]
 root = ET.Element("tv")
 
-# Hanya domain ini yang dibersihkan
-suffixes = (".id", ".sg", ".my", ".th")
-
+# suffix yang dibersihkan
+suffixes_to_clean = (".id", ".sg", ".my", ".th")
 
 def clean_channel_id(ch_id: str) -> str:
-    """Bersihkan hanya suffix tertentu (.id, .sg, .my, .th)"""
+    """Bersihkan id hanya jika suffix .id, .sg, .my, .th lalu tambahkan .SKUYYTV"""
     if not ch_id:
         return ch_id
 
-    original = ch_id.strip()  # hilangkan spasi
+    original = ch_id.strip()
     lowered = original.lower()
 
-    for suf in suffixes:
+    for suf in suffixes_to_clean:
         if lowered.endswith(suf):
             cleaned = original[: -len(suf)] + ".SKUYYTV"
-            print(f"[CLEAN] {original} -> {cleaned}")
+            if original != cleaned:
+                print(f"[CLEAN] {original} -> {cleaned}")
             return cleaned
 
-    # kalau tidak masuk suffix di atas, tetap normal
+    # biarkan normal
     return original
 
+def clean_title(text: str) -> str:
+    """Tambahkan (SKUYY TV) di akhir title"""
+    if not text:
+        return text
+    text = text.strip()
+    if re.search(r"\([^)]*\)$", text):
+        return re.sub(r"\([^)]*\)$", "(SKUYY TV)", text)
+    return f"{text} (SKUYY TV)"
 
 for source in config["sources"]:
     url = source["url"]
@@ -54,12 +62,15 @@ for source in config["sources"]:
             if elem.tag == "programme":
                 if "channel" in elem.attrib and elem.attrib["channel"].strip():
                     elem.attrib["channel"] = clean_channel_id(elem.attrib["channel"])
+                for title in elem.findall("title"):
+                    if title.text and title.text.strip():
+                        title.text = clean_title(title.text)
 
             root.append(elem)
 
     except Exception as e:
-        print(f"[{name}] Error ambil data: {e}")
+        print(f"[{name}] ERROR fetch/parse: {e}")
 
 tree = ET.ElementTree(root)
 tree.write(output_file, encoding="utf-8", xml_declaration=True)
-print(f"✅ Generate EPG selesai -> {output_file}")
+print(f"✅ Generate selesai → {output_file}")
