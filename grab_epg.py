@@ -10,27 +10,26 @@ with open("config.json") as f:
 output_file = config["output"]
 root = ET.Element("tv")
 
-# hanya suffix ini yg diproses
-suffixes_to_clean = (".id", ".sg", ".my", ".th")
+# Hanya domain ini yang dibersihkan
+suffixes = (".id", ".sg", ".my", ".th")
+
 
 def clean_channel_id(ch_id: str) -> str:
-    """Bersihkan hanya akhiran .id, .sg, .my, .th lalu tambahkan .SKUYYTV"""
+    """Bersihkan hanya suffix tertentu (.id, .sg, .my, .th)"""
     if not ch_id:
         return ch_id
 
-    original = ch_id
-    lowered = ch_id.lower()
+    original = ch_id.strip()  # hilangkan spasi
+    lowered = original.lower()
 
-    # cek apakah akhiran termasuk suffix yg diproses
-    for suf in suffixes_to_clean:
+    for suf in suffixes:
         if lowered.endswith(suf):
-            ch_id = ch_id[: -len(suf)] + ".SKUYYTV"
-            if original != ch_id:
-                print(f"[CLEAN] {original} -> {ch_id}")
-            return ch_id
+            cleaned = original[: -len(suf)] + ".SKUYYTV"
+            print(f"[CLEAN] {original} -> {cleaned}")
+            return cleaned
 
-    # selain itu biarkan normal
-    return ch_id
+    # kalau tidak masuk suffix di atas, tetap normal
+    return original
 
 
 for source in config["sources"]:
@@ -56,21 +55,11 @@ for source in config["sources"]:
                 if "channel" in elem.attrib and elem.attrib["channel"].strip():
                     elem.attrib["channel"] = clean_channel_id(elem.attrib["channel"])
 
-                # Edit semua <title>
-                for title in elem.findall("title"):
-                    if title.text and title.text.strip():
-                        text = title.text.strip()
-                        if re.search(r"\([^)]*\)$", text):
-                            text = re.sub(r"\([^)]*\)$", "(SKUYY TV)", text)
-                        else:
-                            text = f"{text} (SKUYY TV)"
-                        title.text = text
-
             root.append(elem)
 
     except Exception as e:
-        print(f"[{name}] Gagal fetch data: {e}")
+        print(f"[{name}] Error ambil data: {e}")
 
 tree = ET.ElementTree(root)
 tree.write(output_file, encoding="utf-8", xml_declaration=True)
-print(f"✅ EPG berhasil digenerate ke {output_file}")
+print(f"✅ Generate EPG selesai -> {output_file}")
